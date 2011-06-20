@@ -1,0 +1,28 @@
+#! /bin/sh
+set -e
+
+# Based on:
+#   http://thorstenl.blogspot.com/2007/01/thls-irssi-notification-script.html
+
+ssh -n xicada ~/bin/irssi-notify-server | \
+	sed -u 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/\\/\\\\/g' | \
+	while read heading message; do
+		case $heading in
+			.)
+				continue
+				;;
+			LPBUG)
+				bug="${message%% *}"
+				message="${message#* }"
+				imp="${message%% *}"
+				message="${message#* }"
+				notify-send -i gtk-dialog-info -t 30000 -- \
+					"New LP bug $bug ($imp)" \
+					"<a href=\"https://launchpad.net/bugs/$bug\">$message</a>"
+				;;
+			*)
+				notify-send -i gtk-dialog-info -t 30000 -- \
+					"${heading}" "${message}"
+				;;
+		esac
+	done

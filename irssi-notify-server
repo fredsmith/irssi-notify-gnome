@@ -1,0 +1,25 @@
+#! /bin/sh
+set -e
+
+# Based on:
+#   http://thorstenl.blogspot.com/2007/01/thls-irssi-notification-script.html
+
+FNOTIFY="$HOME/.irssi/fnotify"
+TAIL=
+
+cleanup () {
+	rm -f "$FNOTIFY"
+	if [ "$TAIL" ]; then
+		kill "$TAIL"
+	fi
+}
+trap cleanup EXIT HUP INT QUIT PIPE TERM
+
+tail -n 10 "$FNOTIFY" 2>/dev/null || true
+> "$FNOTIFY"
+tail -f "$FNOTIFY" &
+TAIL="$!"
+while :; do
+	echo .
+	sleep 5
+done
